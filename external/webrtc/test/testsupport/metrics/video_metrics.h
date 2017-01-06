@@ -17,9 +17,6 @@
 namespace webrtc {
 namespace test {
 
-// The highest PSNR value our algorithms will return.
-extern double kMetricsPerfectPSNR;
-
 // Contains video quality metrics result for a single frame.
 struct FrameResult {
   int frame_number;
@@ -46,13 +43,10 @@ struct QualityMetricsResult {
 
 // Calculates PSNR and SSIM values for the reference and test video files
 // (must be in I420 format). All calculated values are filled into the
-// QualityMetricsResult structs.
-//
+// QualityMetricsResult stucts.
 // PSNR values have the unit decibel (dB) where a high value means the test file
-// is similar to the reference file. The higher value, the more similar. The
-// maximum PSNR value is kMetricsInfinitePSNR. For more info about PSNR, see
-// http://en.wikipedia.org/wiki/PSNR.
-//
+// is similar to the reference file. The higher value, the more similar.
+// For more info about PSNR, see http://en.wikipedia.org/wiki/PSNR
 // SSIM values range between -1.0 and 1.0, where 1.0 means the files are
 // identical. For more info about SSIM, see http://en.wikipedia.org/wiki/SSIM
 // This function only compares video frames up to the point when the shortest
@@ -73,14 +67,11 @@ int I420MetricsFromFiles(const char* ref_filename,
 // Calculates PSNR values for the reference and test video files (must be in
 // I420 format). All calculated values are filled into the QualityMetricsResult
 // struct.
-//
 // PSNR values have the unit decibel (dB) where a high value means the test file
-// is similar to the reference file. The higher value, the more similar. The
-// maximum PSNR value is kMetricsInfinitePSNR. For more info about PSNR, see
-// http://en.wikipedia.org/wiki/PSNR.
-//
+// is similar to the reference file. The higher value, the more similar.
 // This function only compares video frames up to the point when the shortest
 // video ends.
+// For more info about PSNR, see http://en.wikipedia.org/wiki/PSNR
 //
 // Return value:
 //  0 if successful, negative on errors:

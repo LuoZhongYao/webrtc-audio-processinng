@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
+ *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -14,8 +14,8 @@
 namespace webrtc {
 namespace test {
 
-const size_t kPacketSizeInBytes = 1500;
-const size_t kPacketDataLength = kPacketSizeInBytes * 2 + 1;
+const int kPacketSizeInBytes = 1500;
+const int kPacketDataLength = kPacketSizeInBytes * 2 + 1;
 const int kPacketDataNumberOfPackets = 3;
 
 // A base test fixture for packet related tests. Contains
@@ -26,12 +26,12 @@ const int kPacketDataNumberOfPackets = 3;
 class PacketRelatedTest: public testing::Test {
  protected:
   // Tree packet byte arrays with data used for verification:
-  uint8_t packet1_[kPacketSizeInBytes];
-  uint8_t packet2_[kPacketSizeInBytes];
-  uint8_t packet3_[1];
+  WebRtc_UWord8 packet1_[kPacketSizeInBytes];
+  WebRtc_UWord8 packet2_[kPacketSizeInBytes];
+  WebRtc_UWord8 packet3_[1];
   // Construct a data structure containing these packets
-  uint8_t packet_data_[kPacketDataLength];
-  uint8_t* packet_data_pointer_;
+  WebRtc_UWord8 packet_data_[kPacketDataLength];
+  WebRtc_UWord8* packet_data_pointer_;
 
   PacketRelatedTest() {
     packet_data_pointer_ = packet_data_;
@@ -46,7 +46,10 @@ class PacketRelatedTest: public testing::Test {
     memcpy(packet_data_pointer_ + kPacketSizeInBytes * 2, packet3_, 1);
   }
   virtual ~PacketRelatedTest() {}
-  void SetUp() {}
+  void SetUp() {
+    // Initialize the random generator with 0 to get deterministic behavior
+    srand(0);
+  }
   void TearDown() {}
 };
 

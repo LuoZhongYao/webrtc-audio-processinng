@@ -78,8 +78,8 @@ int main(int argc, char **argv)
     unsigned int rate = 44100;
     unsigned int bits = 16;
     unsigned int frames;
-    unsigned int period_size = 1024;
-    unsigned int period_count = 4;
+    unsigned int period_size = 512;
+    unsigned int period_count = 2;
     enum pcm_format format;
 
     if (argc < 2) {
@@ -199,6 +199,7 @@ unsigned int capture_sample(FILE *file, unsigned int card, unsigned int device,
     config.start_threshold = 0;
     config.stop_threshold = 0;
     config.silence_threshold = 0;
+    config.in_init_channels = 2;
 
     pcm = pcm_open(card, device, PCM_IN, &config);
     if (!pcm || !pcm_is_ready(pcm)) {

@@ -8,7 +8,7 @@
 
 {
   'includes': [
-    '../build/common.gypi',
+    '../src/build/common.gypi',
   ],
   'targets': [
     {
@@ -18,15 +18,29 @@
       # GYP generation would occur, because the libyuv.gypi unittest target
       # depends on test_support_main. See issue #160 for more info.
       'target_name': 'metrics',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
-        '<(webrtc_root)/common_video/common_video.gyp:common_video',
-        '<(webrtc_root)/system_wrappers/system_wrappers.gyp:system_wrappers',
+        '<(webrtc_root)/common_video/common_video.gyp:webrtc_libyuv',
+      ],
+      'include_dirs': [
+        '.',
       ],
       'sources': [
         'testsupport/metrics/video_metrics.h',
         'testsupport/metrics/video_metrics.cc',
       ],
     },
-  ], # targets
+    {
+      'target_name': 'metrics_unittests',
+      'type': 'executable',
+      'dependencies': [
+        'metrics',
+        '<(webrtc_root)/../test/test.gyp:test_support_main',
+        '<(webrtc_root)/../testing/gtest.gyp:gtest',
+      ],
+      'sources': [
+        'testsupport/metrics/video_metrics_unittest.cc',
+      ],
+    },
+  ],
 }

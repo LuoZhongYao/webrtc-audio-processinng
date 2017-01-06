@@ -8,35 +8,15 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/test/test_suite.h"
+#include "test/test_suite.h"
 
-#include "gflags/gflags.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "webrtc/base/logging.h"
-#include "webrtc/test/testsupport/fileutils.h"
-#include "webrtc/test/testsupport/trace_to_stderr.h"
-#include "webrtc/test/field_trial.h"
-
-DEFINE_bool(logs, false, "print logs to stderr");
-
-DEFINE_string(force_fieldtrials, "",
-    "Field trials control experimental feature code which can be forced. "
-    "E.g. running with --force_fieldtrials=WebRTC-FooFeature/Enable/"
-    " will assign the group Enable to field trial WebRTC-FooFeature.");
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 namespace webrtc {
 namespace test {
-
 TestSuite::TestSuite(int argc, char** argv) {
-  SetExecutablePath(argv[0]);
   testing::InitGoogleMock(&argc, argv);  // Runs InitGoogleTest() internally.
-  // AllowCommandLineParsing allows us to ignore flags passed on to us by
-  // Chromium build bots without having to explicitly disable them.
-  google::AllowCommandLineReparsing();
-  google::ParseCommandLineFlags(&argc, &argv, true);
-
-  webrtc::test::InitFieldTrialsFromString(FLAGS_force_fieldtrials);
 }
 
 TestSuite::~TestSuite() {
@@ -50,13 +30,10 @@ int TestSuite::Run() {
 }
 
 void TestSuite::Initialize() {
-  rtc::LogMessage::SetLogToStderr(FLAGS_logs);
-  if (FLAGS_logs)
-    trace_to_stderr_.reset(new TraceToStderr);
+  // TODO(andrew): initialize singletons here (e.g. Trace).
 }
 
 void TestSuite::Shutdown() {
 }
-
 }  // namespace test
 }  // namespace webrtc

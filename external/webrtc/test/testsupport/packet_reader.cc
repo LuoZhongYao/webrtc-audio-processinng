@@ -8,11 +8,10 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/test/testsupport/packet_reader.h"
+#include "testsupport/packet_reader.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <algorithm>
+#include <cassert>
+#include <cstdio>
 
 namespace webrtc {
 namespace test {
@@ -22,10 +21,11 @@ PacketReader::PacketReader()
 
 PacketReader::~PacketReader() {}
 
-void PacketReader::InitializeReading(uint8_t* data,
-                                     size_t data_length_in_bytes,
-                                     size_t packet_size_in_bytes) {
+void PacketReader::InitializeReading(WebRtc_UWord8* data,
+                                     int data_length_in_bytes,
+                                     int packet_size_in_bytes) {
   assert(data);
+  assert(data_length_in_bytes >= 0);
   assert(packet_size_in_bytes > 0);
   data_ = data;
   data_length_ = data_length_in_bytes;
@@ -34,15 +34,22 @@ void PacketReader::InitializeReading(uint8_t* data,
   initialized_ = true;
 }
 
-int PacketReader::NextPacket(uint8_t** packet_pointer) {
+int PacketReader::NextPacket(WebRtc_UWord8** packet_pointer) {
   if (!initialized_) {
     fprintf(stderr, "Attempting to use uninitialized PacketReader!\n");
     return -1;
   }
   *packet_pointer = data_ + currentIndex_;
-  size_t old_index = currentIndex_;
-  currentIndex_ = std::min(currentIndex_ + packet_size_, data_length_);
-  return static_cast<int>(currentIndex_ - old_index);
+  // Check if we're about to read the last packet:
+  if (data_length_ - currentIndex_ <= packet_size_) {
+    int size = data_length_ - currentIndex_;
+    currentIndex_ = data_length_;
+    assert(size >= 0);
+    return size;
+  }
+  currentIndex_ += packet_size_;
+  assert(packet_size_ >= 0);
+  return packet_size_;
 }
 
 }  // namespace test

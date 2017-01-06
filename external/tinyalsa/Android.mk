@@ -1,20 +1,21 @@
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
+
 include $(TOP)/external/webrtc/android-webrtc.mk
-LOCAL_C_INCLUDES       := \
-	$(TOP)/external/\
-	$(TOP)/external/tinyalsa/include
+LOCAL_C_INCLUDES       :=  \
+	$(TOP)/external/tinyalsa/include\
+	$(TOP)/external
 
 LOCAL_CFLAGS := $(MY_WEBRTC_COMMON_DEFS)
 
-LOCAL_SRC_FILES        := mixer.c pcm.cc kfifo.c
+LOCAL_SRC_FILES        := mixer.c pcm.c kfifo.c
 LOCAL_MODULE           := libtinyalsa
-LOCAL_SHARED_LIBRARIES := libcutils libutils libwapm
+LOCAL_SHARED_LIBRARIES := libcutils libutils #libwapm
 LOCAL_MODULE_TAGS      := optional
 LOCAL_PRELINK_MODULE   := false
 LOCAL_STATIC_LIBRARIES := drc
-LOCAL_LDFLAGS          := -llog
+LOCAL_LDFLAGS          := -llog -ldl
 
 include $(BUILD_SHARED_LIBRARY)
 

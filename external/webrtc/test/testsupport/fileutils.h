@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include <stdio.h>
+#include <cstdio>
 
 // File utilities for testing purposes.
 //
@@ -92,20 +92,15 @@ extern const char* kCannotFindProjectRootDir;
 std::string ProjectRootPath();
 
 // Creates and returns the absolute path to the output directory where log files
-// and other test artifacts should be put. The output directory is generally a
+// and other test artifacts should be put. The output directory is always a
 // directory named "out" at the top-level of the project, i.e. a subfolder to
-// the path returned by ProjectRootPath(). The exception is Android where we use
-// /sdcard/ instead.
+// the path returned by ProjectRootPath().
 //
 // Details described for ProjectRootPath() apply here too.
 //
 // Returns the path WITH a trailing path delimiter. If the project root is not
 // found, the current working directory ("./") is returned as a fallback.
 std::string OutputPath();
-
-// Generates an empty file with a unique name in the specified directory and
-// returns the file name and path.
-std::string TempFilename(const std::string &dir, const std::string &prefix);
 
 // Returns a path to a resource file for the currently executing platform.
 // Adapts to what filenames are currently present in the
@@ -136,22 +131,11 @@ std::string WorkingDir();
 // Creates a directory if it not already exists.
 // Returns true if successful. Will print an error message to stderr and return
 // false if a file with the same name already exists.
-bool CreateDir(std::string directory_name);
-
-// Checks if a file exists.
-bool FileExists(std::string& file_name);
+bool CreateDirectory(std::string directory_name);
 
 // File size of the supplied file in bytes. Will return 0 if the file is
 // empty or if the file does not exist/is readable.
 size_t GetFileSize(std::string filename);
-
-// Sets the executable path, i.e. the path to the executable that is being used
-// when launching it. This is usually the path relative to the working directory
-// but can also be an absolute path. The intention with this function is to pass
-// the argv[0] being sent into the main function to make it possible for
-// fileutils.h to find the correct project paths even when the working directory
-// is outside the project tree (which happens in some cases).
-void SetExecutablePath(const std::string& path_to_executable);
 
 }  // namespace test
 }  // namespace webrtc

@@ -18,6 +18,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_C_INCLUDES := $(TOP)/external
 LOCAL_SRC_FILES := \
+	pcm.cc\
     aec/aec_core.c\
     aec/aec_rdft.c\
     aec/aec_resampler.c\
@@ -82,6 +83,7 @@ LOCAL_CFLAGS := \
 LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libdl \
+	libtinyalsa\
     libstlport
 
 ifndef NDK_ROOT

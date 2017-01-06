@@ -1509,6 +1509,13 @@ static inline void audioFrame(AudioFrame& frame,void *audio,size_t size)
     frame.samples_per_channel_ = 480;
 }
 
+static void fixup(short audio[], int count)
+{
+    for(int i = 0;i < count;i += 2)
+        audio[i + 1] = audio[i];
+
+}
+
 static void *capture_handler(void *_)
 {
     __auto_type ctx = (typeof(&capture))_;
@@ -1518,8 +1525,9 @@ static void *capture_handler(void *_)
 
     while(1) {
         int res = L_pcm_read(ctx->pcm, sbuff, bytes_10ms);
-        int delay = 90;//(pcm_get_delay(capture.pcm) + pcm_get_delay(playback.pcm)) / 48;
+        int delay = 50;//(pcm_get_delay(capture.pcm) + pcm_get_delay(playback.pcm)) / 48;
         //ALOGD("capture ： %d,res %d\n", pcm_get_delay(capture.pcm), res);
+        fixup((short*)sbuff, bytes_10ms / 2);
         pthread_mutex_lock(&ctx->mutex);
         audioFrame(frame , sbuff, bytes_10ms);
         apm->set_stream_delay_ms(delay);
@@ -1557,23 +1565,23 @@ static void *playback_handler(void *_)
         pthread_mutex_unlock(&ctx->mutex);
 
         L_pcm_write(ctx->pcm, sbuff, bytes_10ms);
-        memset(sbuff, 0, bytes_10ms);
+        //memset(sbuff, 0, bytes_10ms);
 
-        if(capture.pcm) {
-            int res = L_pcm_read(capture.pcm, sbuff, bytes_10ms);
-            int delay = (pcm_get_delay(capture.pcm) + pcm_get_delay(playback.pcm)) / 48;
-            ALOGD("%d, %d,res %d, delay %d\n", pcm_get_delay(capture.pcm), pcm_get_delay(playback.pcm), res, delay);
-            pthread_mutex_lock(&capture.mutex);
-            audioFrame(frame , sbuff, bytes_10ms);
-            apm->set_stream_delay_ms(delay);
-            apm->gain_control()->set_stream_analog_level(analog_level);
-            res = apm->ProcessStream(&frame);
-            analog_level = apm->gain_control()->stream_analog_level();
+        //if(capture.pcm) {
+        //    int res = L_pcm_read(capture.pcm, sbuff, bytes_10ms);
+        //    int delay = (pcm_get_delay(capture.pcm) + pcm_get_delay(playback.pcm)) / 48;
+        //    ALOGD("%d, %d,res %d, delay %d\n", pcm_get_delay(capture.pcm), pcm_get_delay(playback.pcm), res, delay);
+        //    pthread_mutex_lock(&capture.mutex);
+        //    audioFrame(frame , sbuff, bytes_10ms);
+        //    apm->set_stream_delay_ms(delay);
+        //    apm->gain_control()->set_stream_analog_level(analog_level);
+        //    res = apm->ProcessStream(&frame);
+        //    analog_level = apm->gain_control()->stream_analog_level();
 
-            kfifo_in(&capture.kfifo, (unsigned char *)frame.data_, bytes_10ms);
-            pthread_mutex_unlock(&capture.mutex);
-        }
-        //ALOGD("playback ： %d\n", pcm_get_delay(ctx->pcm));
+        //    kfifo_in(&capture.kfifo, (unsigned char *)frame.data_, bytes_10ms);
+        //    pthread_mutex_unlock(&capture.mutex);
+        //}
+        ////ALOGD("playback ： %d\n", pcm_get_delay(ctx->pcm));
     }
     return NULL;
 }
@@ -1615,7 +1623,7 @@ struct pcm *pcm_open_req(unsigned card, unsigned device,
     __auto_type ctx = (flags & PCM_IN) ? &capture : &playback;
     if(!card && !device) {
 
-        config->period_size = 480;
+        //config->period_size = 480;
         if(ctx->pcm == NULL) {
             struct pcm *pcm = L_pcm_open_req(card, device, flags, config, requested_rate);
             ctx->pcm = pcm;
@@ -1624,9 +1632,9 @@ struct pcm *pcm_open_req(unsigned card, unsigned device,
                 : AudioProcessing::ChannelLayout::kMono;
 
             try_apm_enable();
-            //pthread_create(&pid, NULL, 
-            //        (flags & PCM_IN) ? capture_handler : playback_handler,
-            //        (void*)ctx);
+            pthread_create(&pid, NULL, 
+                    (flags & PCM_IN) ? capture_handler : playback_handler,
+                    (void*)ctx);
         }
 
         if(flags & PCM_IN) {
@@ -1665,9 +1673,9 @@ struct pcm *pcm_open(unsigned card, unsigned device,
                 : AudioProcessing::ChannelLayout::kMono;
 
             try_apm_enable();
-            //pthread_create(&pid, NULL, 
-            //        (flags & PCM_IN) ? capture_handler : playback_handler,
-            //        (void*)ctx);
+            pthread_create(&pid, NULL, 
+                    (flags & PCM_IN) ? capture_handler : playback_handler,
+                    (void*)ctx);
         }
 
         if(flags & PCM_IN) {
@@ -1694,7 +1702,7 @@ int pcm_read(struct pcm *pcm, void *data, unsigned count)
 {
     ALOGD("pcm_read %d", count);
     __auto_type ctx = &capture;
-#if 0
+#if 1
     if(pcm != ctx->pcm)
         return L_pcm_read(pcm, data, count);
     usleep(count / BITS_1MS(ctx) * 1000);
@@ -1721,7 +1729,7 @@ int pcm_write(struct pcm *pcm, const void *data, unsigned count)
 {
     ALOGD("pcm_write %d", count);
     __auto_type ctx = &playback;
-#if 0
+#if 1
     if(pcm != ctx->pcm)
         return L_pcm_write(pcm, data, count);
     pthread_mutex_lock(&ctx->mutex);
